@@ -36,6 +36,43 @@ def clean_text(text):
     text = text.lower()
     return text
 
+# Function to create bigram features
+def get_bigrams(text):
+    bigram_list = [] # List to store the indexes of the max frequency bi-grams
+    max_bigrams = [] # List to store the bigram strings
+    txt = text.split(" ")
+    bigram_count = (pd.Series(nltk.ngrams(txt, 2)).value_counts()) # Return the frequency count of all bigrams in the text
+
+    if bigram_count.empty:
+        return " "
+    else:
+        bigram_list.append(bigram_count[bigram_count > (max(bigram_count) - 2)].index)
+
+        for i in range(len(bigram_list)):
+            max_bigrams.append(list(bigram_list[i][0]))
+
+        return max_bigrams
+
+
+
+# Function to create trigram features
+def get_trigrams(text):
+    trigram_list = [] # List to store the indexes of the max frequency bi-grams
+    max_trigrams = [] # List to store the bigram strings
+    txt = text.split(" ")
+    trigram_count = (pd.Series(nltk.ngrams(txt, 3)).value_counts()) # Return the frequency count of all bigrams in the text
+
+    if trigram_count.empty:
+        return " "
+    else:
+        trigram_list.append(trigram_count[trigram_count > (max(trigram_count) - 3)].index)
+
+        for i in range(len(trigram_list)):
+            max_trigrams.append(list(trigram_list[i][0]))
+
+        return max_trigrams
+
+
 
 # Apply the remove_stopwords function to the 'content' column of the dataframe
 df['content'] = df['content'].apply(remove_stopwords)
@@ -43,7 +80,12 @@ df['content'] = df['content'].apply(remove_stopwords)
 # Apply the clean_text function to the 'content' column of the dataframe
 df['content'] = df['content'].apply(clean_text)
 
-print('...')
+# Apply the trigram function to the 'content' column of the dataframe
+df['bi_grams'] = df['content'].apply(get_bigrams)
+
+# Apply the trigram function to the 'content' column of the dataframe
+df['tri_grams'] = df['content'].apply(get_trigrams)
+
 
 # save the modified dataframe to a new CSV file
-#df.to_csv('articles_without_stopwords.csv', index=False)
+df.to_csv('articles_without_stopwords.csv', index=False)
